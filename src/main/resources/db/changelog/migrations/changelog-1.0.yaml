@@ -1,0 +1,34 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: createTable-number
+      author: Rustem Fattakhov
+      changes:
+        - createTable:
+            tableName: number
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {nullable: false, primaryKey: true, primaryKeyName: number_pKey}}
+              - column: {name: word, type: VARCHAR(100)}
+              - column: {name: numeric, type: INT}
+
+  - changeSet:
+      id: createTable-numeric
+      author: Rustem Fattakhov
+      changes:
+        - createTable:
+            tableName: numeric
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {nullable: false, primaryKey: true, primaryKeyName: numeric_pKey}}
+              - column: {name: word, type: VARCHAR(100)}
+              - column: {name: numeric, type: INT}
+              - column: {name: issued, type: BOOLEAN}
+              - column: {name: next, type: BOOLEAN}
+
+  - changeSet:
+      id: insertData
+      author: Rustem Fattakhov
+      changes:
+        sqlFile:
+          dbms: 'postgresql'
+          endDelimiter:  \nGO
+          path: db/changelog/scripts/insert-data.sql
