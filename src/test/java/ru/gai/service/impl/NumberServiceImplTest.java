@@ -1,7 +1,6 @@
 package ru.gai.service.impl;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -21,10 +20,6 @@ public class NumberServiceImplTest {
 
     @Mock
     private NumberRepository numberRepository;
-
-    @Test
-    public void testRandom() {
-    }
 
     @Test
     public void testNext() {

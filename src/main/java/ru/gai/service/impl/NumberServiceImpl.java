@@ -1,12 +1,11 @@
 package ru.gai.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.gai.config.Constant;
 import ru.gai.entity.Number;
 import ru.gai.repository.NumberRepository;
 import ru.gai.service.NumberService;
-
-import java.util.*;
 
 @Service("number-service")
 public class NumberServiceImpl implements NumberService {
@@ -19,6 +18,7 @@ public class NumberServiceImpl implements NumberService {
         this.numberRepository = numberRepository;
     }
 
+    @Transactional
     public String random() {
         while (true) {
             char[] numberLetters = new char[3];
@@ -41,6 +41,7 @@ public class NumberServiceImpl implements NumberService {
         }
     }
 
+    @Transactional
     public String next() {
         while(true) {
             Number lastNumber = numberRepository.findTopByOrderByIdDesc()
@@ -59,12 +60,22 @@ public class NumberServiceImpl implements NumberService {
 
             if (numberRepository.findByWordAndNumeric(saveNumber.getWord(), saveNumber.getNumeric()).isEmpty()) {
                 numberRepository.save(saveNumber);
-                char[] ss = saveNumber.getWord().toCharArray();
-                return String.format("%c%03d%c%c ", ss[0], saveNumber.getNumeric(), ss[1], ss[2]) + Constant.REGION;
+                char[] numberLetters = saveNumber.getWord().toCharArray();
+                return String.format("%c%03d%c%c ",
+                        numberLetters[0],
+                        saveNumber.getNumeric(),
+                        numberLetters[1],
+                        numberLetters[2]) + Constant.REGION;
             }
         }
     }
 
+    /**
+     * Возвращает следующую комбинацию букв после charsWord
+     * @param charsWord буквы из Номера
+     * @param n с какой буквы идет поиск
+     * @return
+     */
     private String incrementWord(char[] charsWord, int n) {
         for(int i = 0; i < letters.length; i++) {
             if (charsWord[n] == letters[i]) {

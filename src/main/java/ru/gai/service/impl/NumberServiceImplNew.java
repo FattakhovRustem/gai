@@ -1,6 +1,7 @@
 package ru.gai.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.gai.config.Constant;
 import ru.gai.entity.Numeric;
 import ru.gai.repository.NumericRepository;
@@ -41,6 +42,7 @@ public class NumberServiceImplNew implements NumberService {
         this.nextIndex = 0;
     }
 
+    @Transactional
     @Override
     public String random() {
         while (!cacheNumericLinked.isEmpty()) {
@@ -66,6 +68,7 @@ public class NumberServiceImplNew implements NumberService {
         return Constant.NUMBER_FINISHED;
     }
 
+    @Transactional
     @Override
     public String next() {
         while (!cacheNumericLinked.isEmpty()) {
