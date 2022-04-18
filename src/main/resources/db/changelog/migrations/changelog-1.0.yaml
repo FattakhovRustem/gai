@@ -21,8 +21,7 @@ databaseChangeLog:
               - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {nullable: false, primaryKey: true, primaryKeyName: numeric_pKey}}
               - column: {name: word, type: VARCHAR(100)}
               - column: {name: numeric, type: INT}
-              - column: {name: issued, type: BOOLEAN}
-              - column: {name: next, type: BOOLEAN}
+              - column: {name: date_issued, type: DATETIME}
 
   - changeSet:
       id: insertData

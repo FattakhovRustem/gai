@@ -12,8 +12,8 @@ BEGIN
 			LOOP
 				FOR i IN 1..999
 		        LOOP
-   			        insert into numeric(word, numeric, issued, next)
-			        values(x || y || z, i, false, false);
+   			        insert into numeric(word, numeric)
+			        values(x || y || z, i);
 		        END LOOP;
    			END LOOP;
    		END LOOP;

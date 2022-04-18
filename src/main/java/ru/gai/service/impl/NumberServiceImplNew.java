@@ -8,6 +8,7 @@ import ru.gai.repository.NumericRepository;
 import ru.gai.service.NumberService;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service("number-service-new")
@@ -15,8 +16,7 @@ public class NumberServiceImplNew implements NumberService {
 
     private final NumericRepository numericRepository;
 
-    private List<Numeric> cacheNumericLinked;
-    private Numeric nextNumeric;
+    private List<Numeric> cacheNumeric;
     private int nextIndex;
 
     public NumberServiceImplNew(NumericRepository numericRepository) {
@@ -25,45 +25,31 @@ public class NumberServiceImplNew implements NumberService {
 
     @PostConstruct
     public void init() {
-        this.cacheNumericLinked = numericRepository.findAllByIssuedOrderById(false);
+        this.cacheNumeric = numericRepository.findAllByDateIssuedIsNullOrderById();
 
-        if (this.cacheNumericLinked.isEmpty()) {
+        if (this.cacheNumeric.isEmpty()) {
             return;
         }
 
-        for (int i = 0; i < this.cacheNumericLinked.size(); i++) {
-            this.nextNumeric = cacheNumericLinked.get(i);
-            if (this.nextNumeric.getNext()) {
-                this.nextIndex = i;
-                return;
+        Optional<Numeric> numericOptional = numericRepository.findTopByDateIssuedIsNotNullOrderByDateIssuedDesc();
+        if (numericOptional.isPresent()) {
+            for (int i = 0; i < this.cacheNumeric.size(); i++) {
+                if (this.cacheNumeric.get(i).getId() > numericOptional.get().getId()) {
+                    this.nextIndex = i;
+                    return;
+                }
             }
         }
-        this.nextNumeric = cacheNumericLinked.get(0);
+
         this.nextIndex = 0;
     }
 
     @Transactional
     @Override
     public String random() {
-        while (!cacheNumericLinked.isEmpty()) {
-            this.nextNumeric.setNext(false);
-            numericRepository.save(this.nextNumeric);
-
-            int randomIndex = (int) (Math.random() * cacheNumericLinked.size());
-            Numeric randomValue = cacheNumericLinked.get(randomIndex);
-            randomValue.setIssued(true);
-            numericRepository.save(randomValue);
-            cacheNumericLinked.remove(randomIndex);
-
-            if (randomIndex == cacheNumericLinked.size()) {
-                this.nextIndex = 0;
-            }
-            this.nextNumeric = cacheNumericLinked.get(this.nextIndex);
-            this.nextNumeric.setNext(true);
-            numericRepository.save(this.nextNumeric);
-
-            char[] words = randomValue.getWord().toCharArray();
-            return String.format("%c%03d%c%c ", words[0], randomValue.getNumeric(), words[1], words[2]) + Constant.REGION;
+        while (!cacheNumeric.isEmpty()) {
+            int randomIndex = (int) (Math.random() * cacheNumeric.size());
+            return getNumber(randomIndex);
         }
         return Constant.NUMBER_FINISHED;
     }
@@ -71,23 +57,29 @@ public class NumberServiceImplNew implements NumberService {
     @Transactional
     @Override
     public String next() {
-        while (!cacheNumericLinked.isEmpty()) {
-            Numeric nextValue = cacheNumericLinked.get(this.nextIndex);
-            nextValue.setIssued(true);
-            nextValue.setNext(false);
-            numericRepository.save(nextValue);
-            cacheNumericLinked.remove(this.nextIndex);
-
-            if (this.nextIndex == cacheNumericLinked.size()) {
-                this.nextIndex = 0;
-            }
-            this.nextNumeric = cacheNumericLinked.get(this.nextIndex);
-            this.nextNumeric.setNext(true);
-            numericRepository.save(this.nextNumeric);
-
-            char[] words = nextValue.getWord().toCharArray();
-            return String.format("%c%03d%c%c ", words[0], nextValue.getNumeric(), words[1], words[2]) + Constant.REGION;
+        while (!cacheNumeric.isEmpty()) {
+            return getNumber(this.nextIndex);
         }
         return Constant.NUMBER_FINISHED;
+    }
+
+    /**
+     * Выдает Номер по индексу и назначает индекс следующего элемента по порядку
+     * @param index индекс Номера
+     * @return Номер в виде строки АХХХАА 116 RUS
+     */
+    private String getNumber(int index) {
+        Numeric numeric = cacheNumeric.remove(index);
+        numeric.setDateIssued(LocalDateTime.now());
+        numericRepository.save(numeric);
+
+        if (index == cacheNumeric.size()) {
+            this.nextIndex = 0;
+        } else {
+            this.nextIndex = index;
+        }
+
+        char[] words = numeric.getWord().toCharArray();
+        return String.format("%c%03d%c%c ", words[0], numeric.getNumeric(), words[1], words[2]) + Constant.REGION;
     }
 }

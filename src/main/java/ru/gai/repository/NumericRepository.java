@@ -1,18 +1,23 @@
 package ru.gai.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import ru.gai.entity.Numeric;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NumericRepository extends JpaRepository<Numeric, Long> {
 
     /**
-     * Получает комбинации выданных/не выданных номеров
-     * @param issued Номер выдан - true, Номер не выдан - false
-     * @return Возвращает список номеров
+     * Получает все Номера у которых нет даты выдачи и отсортированные по id
+     * @return список Номеров
      */
-    List<Numeric> findAllByIssuedOrderById(Boolean issued);
+    List<Numeric> findAllByDateIssuedIsNullOrderById();
+
+    /**
+     * Получет первый Номер из списка Номеров,
+     * у которых есть дата выдачи и отсортированнные по нему от большего к меньшему
+     * @return Номер
+     */
+    Optional<Numeric> findTopByDateIssuedIsNotNullOrderByDateIssuedDesc();
 }

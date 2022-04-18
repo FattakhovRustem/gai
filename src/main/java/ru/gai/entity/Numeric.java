@@ -1,16 +1,15 @@
 package ru.gai.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "numeric")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Numeric {
@@ -25,9 +24,6 @@ public class Numeric {
     @Column(name = "numeric")
     private Integer numeric;
 
-    @Column(name = "issued")
-    private Boolean issued;
-
-    @Column(name = "next")
-    private Boolean next;
+    @Column(name = "date_issued")
+    private LocalDateTime dateIssued;
 }
